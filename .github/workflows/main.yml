@@ -1,0 +1,22 @@
+name: Temporary Linux GUI VPS
+
+on:
+  workflow_dispatch: # กดสั่งรันเองได้จากแท็บ Actions
+
+jobs:
+  start-gui-vps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start Ubuntu Desktop Container
+        run: |
+          docker run -d --name ubuntu-gui \
+            -p 6080:80 \
+            -e VNC_PASSWORD=mypassword \
+            --shm-size=1g \
+            dorowu/ubuntu-desktop-lxde-vnc
+
+      - name: Install and Run Cloudflare Tunnel
+        run: |
+          wget -q https://github.com
+          sudo dpkg -i cloudflared-linux-amd64.deb
+          cloudflared tunnel --url http://localhost:6080
