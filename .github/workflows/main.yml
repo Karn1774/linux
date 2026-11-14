@@ -15,9 +15,6 @@ jobs:
           sudo service xrdp restart
           echo "runner:mypassword" | sudo chpasswd
 
-      - name: Start Ngrok TCP Tunnel via Docker
+      - name: Start RDP Tunnel via Pinggy
         run: |
-          docker run --rm --net=host \
-            -e NGROK_AUTHTOKEN=3HiVFNJcIgGRlEgHkJk1cuyDUIz_2W2DoMNk4bC6bPZU7cXUP \
-            ngrok/ngrok:latest tcp 3389 --log=stdout
-
+          ssh -o StrictHostKeyChecking=no -R 0:localhost:3389 tcp@a.pinggy.io
