@@ -1,18 +1,24 @@
-name: Temporary Linux GUI VPS
+name: Ubuntu Desktop Full RDP
 
 on:
   workflow_dispatch:
 
 jobs:
-  start-gui-vps:
+  start-ubuntu-rdp:
     runs-on: ubuntu-latest
     steps:
-      - name: Start Ubuntu Desktop and Cloudflare Tunnel
+      - name: Install XFCE Desktop and XRDP
         run: |
-          docker run -d --name ubuntu-gui \
-            -p 6080:80 \
-            -e VNC_PASSWORD=mypassword \
-            --shm-size=1g \
-            dorowu/ubuntu-desktop-lxde-vnc
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y xfce4 xfce4-goodies xrdp
+          echo "xfce4-session" > ~/.xsession
+          sudo service xrdp restart
+          echo "runner:mypassword" | sudo chpasswd
 
-          docker run --rm --net=host cloudflare/cloudflared:latest tunnel --url http://localhost:6080
+      - name: Setup Ngrok TCP Tunnel
+        run: |
+          curl -sSL https://amazonaws.com | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+          echo "deb https://amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+          sudo apt-get update && sudo apt-get install -y ngrok
+          ngrok config add-authtoken 3HiVFNJcIgGRlEgHkJk1cuyDUIz_2W2DoMNk4bC6bPZU7cXUP
+          ngrok tcp 3389 --log=stdout
